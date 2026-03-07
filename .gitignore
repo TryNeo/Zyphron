@@ -205,3 +205,7 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+src/storage/
+src/core/ui_constants.py
+src/core/ui_dialog.py
+src/core/sql/data.sql
