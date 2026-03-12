@@ -16,6 +16,24 @@ class HomeView(FletView):
             self._build_card(9999, Messages.MSG_NOT_CREDENTIALS_FOUND,"-","-")
         ]
         self.content_user = self._build_content_user()
+        self.datatable_custom = self._build_datatable(
+            columns=[
+                ft.DataColumn(ft.Text("Proyecto", size=14, weight="bold", font_family="SaansRegular", color="#e2e8f0")),
+                ft.DataColumn(ft.Text("Título", size=14, weight="bold", font_family="SaansRegular", color="#e2e8f0")),
+                ft.DataColumn(ft.Text("Ruta", size=14, weight="bold", font_family="SaansRegular", color="#e2e8f0")),
+                ft.DataColumn(ft.Text("Opciones", size=14, weight="bold", font_family="SaansRegular", color="#e2e8f0")),
+            ],
+        )
+        self.paging_buttons = self._build_paging_buttons()
+        self.controller.generate_records(
+                self.datatable_custom,
+                self.paging_buttons,
+                self.controller.base_page,
+                self.controller.generate_row_data_routes,
+                self.model.get_routes,
+                self.model.get_data_paginate_route,
+                self.model.total_records_route,)
+        self.content_tabs = self._build_tabs()
         self.view = self._build_view()
         super().__init__(self.model, self.view, self.controller)
 
@@ -101,7 +119,7 @@ class HomeView(FletView):
                                 height=200,
                             ),
                             ft.Container(
-                                content=self.controller.content_tabs,
+                                content=self.content_tabs,
                                 width=900,
                                 height=530,
                             )
@@ -126,6 +144,9 @@ class HomeView(FletView):
                                         border_color=ft.Colors.GREY_600,
                                         max_length=50,
                                         show_cursor=True,
+                                        on_change=lambda e: self.controller.search_credentials(e, 
+                                                                                               self.content_user,
+                                                                                               self._build_card),
                                     ),
                                     ft.Button(
                                         height=56,
@@ -226,7 +247,7 @@ class HomeView(FletView):
                                                                     self.content_user,
                                                                     self._build_card,
                                                                 ],
-                                                                message_action=Messages.MSG_EDIT,
+                                                                message_action=Messages.MSG_SAVE,
                                                         ),
                                 ),
                                 ft.PopupMenuItem(
@@ -396,3 +417,137 @@ class HomeView(FletView):
                     on_change=lambda e: self.controller.validate_fields_credential(e),
                     content_padding=ft.padding.symmetric(horizontal=15, vertical=10),
                 )
+
+    def _build_datatable(self, columns) -> ft.DataTable:
+        return ft.DataTable(
+                    border=ft.border.all(0.5, ft.Colors.GREY_400),
+                    border_radius=2,
+                    data_row_color={ft.ControlState.HOVERED: ft.colors.with_opacity(0.8, "#00001B") },
+                    heading_row_color="#292929",
+                    heading_row_height=28,
+                    data_row_min_height=43.5,
+                    data_row_max_height=43.5,
+                    divider_thickness=45,
+                    sort_column_index=0,
+                    sort_ascending=True,
+                    vertical_lines=ft.border.BorderSide(0.5, ft.Colors.GREY_400),
+                    horizontal_lines=ft.border.BorderSide(0.5, ft.Colors.GREY_400),
+                    height=335,
+                    width=880,
+                    columns=columns,
+                    rows=[]
+                )
+
+    def _build_add_route(self) -> ft.Button:
+        return ft.Button(
+                    height=56,
+                    text=Messages.MSG_ADD,
+                    icon=ft.icons.ADD,
+                    icon_color="white",
+                    elevation=5,
+                    animate_scale=ft.animation.Animation(150, "easeOutCubic"),
+                    animate_opacity=ft.animation.Animation(150, "easeOutCubic"),
+                    style=ft.ButtonStyle(
+                        shape=ft.RoundedRectangleBorder(radius=5),
+                        color="White",
+                        overlay_color="black12",
+                    ),
+                )
+
+    def _build_search_routes(self,label: str = "") -> ft.TextField:
+        return  ft.TextField(
+                    label=label,
+                    suffix_icon=ft.icons.SEARCH,
+                    label_style=ft.TextStyle(color=ft.Colors.WHITE,font_family="SaansRegular"),
+                    border_radius=ft.BorderRadius(10,10,10,10),
+                    border_color=ft.Colors.GREY_600,
+                    max_length=50,
+                    show_cursor=True,
+                    on_change=lambda e: self.controller.search_records(e,
+                                                                    self.datatable_custom,
+                                                                    self.paging_buttons,
+                                                                    self.controller.generate_row_data_routes,
+                                                                    self.model.get_routes,
+                                                                    self.model.get_data_paginate_route,
+                                                                    self.model.total_records_route),
+                )
+
+    def _build_paging_buttons(self) -> ft.Row:
+        return  ft.Row(
+                    controls=[
+                        ft.Text(f"{Messages.MSG_TOTAL_RECORDS} {self.controller.total_records}",size=15,weight=ft.FontWeight.W_300),
+                        #ft.Text(f"{Messages.MSG_RECORDS_PER_PAGE} {self.controller.total_records_pages}",size=15,weight=ft.FontWeight.W_300),
+                        ft.Row(
+                            controls=[
+                                ft.Row(
+                                    alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+                                    controls=[
+                                        ft.IconButton(
+                                            icon=ft.Icons.KEYBOARD_ARROW_LEFT,
+                                            icon_color=ft.Colors.WHITE,
+                                            tooltip=Messages.MSG_PREVIOUS,
+                                            width=40,
+                                            height=40,
+                                            on_click=lambda e: self.controller.paginator(e,self.datatable_custom,self.paging_buttons,False,
+                                                                                         self.controller.generate_row_data_routes,
+                                                                                         self.model.get_routes,
+                                                                                         self.model.get_data_paginate_route,
+                                                                                         self.model.total_records_route),
+                                        ),
+                                        ft.IconButton(
+                                            icon=ft.Icons.KEYBOARD_ARROW_RIGHT,
+                                            icon_color=ft.Colors.WHITE,
+                                            tooltip=Messages.MSG_NEXT,
+                                            width=40,
+                                            height=40,
+                                            on_click=lambda e: self.controller.paginator(e,self.datatable_custom,self.paging_buttons,True,
+                                                                                         self.controller.generate_row_data_routes,
+                                                                                         self.model.get_routes,
+                                                                                         self.model.get_data_paginate_route,
+                                                                                         self.model.total_records_route),
+                                        ),
+                                    ]
+                                ),
+                            ],
+                        )
+                    ],
+                    #spacing=669,
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                )
+
+    def _build_tab_routes(self)-> ft.Tab:
+        return  ft.Tab(
+                text=Messages.MSG_ROUTES,
+                content=ft.Container(
+                    padding=20,
+                    content=ft.Column(
+                        controls=[
+                            ft.Row(
+                                controls=[
+                                    self._build_search_routes("Buscar por proyecto o ruta"),
+                                    self._build_add_route(),
+                                ],
+                                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                            ),
+                            self.datatable_custom,
+                            self.paging_buttons,
+                        ]
+                    ),
+                ),
+            )
+
+    def _build_tabs(self) -> ft.Tabs:
+        return ft.Tabs(
+            selected_index=0,
+            animation_duration=300,
+            indicator_color="#e2e8f0",
+            indicator_thickness=3,
+            label_color="#e2e8f0",
+            unselected_label_color="#64748b",
+            divider_color="transparent",
+            overlay_color="transparent",
+            tabs=[
+                self._build_tab_routes(),
+            ],
+            expand=1,
+    )

@@ -170,7 +170,6 @@ class Header(ft.Container):
                 tooltip=Messages.MSG_MINIMIZE
             )
     
-    
     def _build_button_close(self) -> ft.IconButton:
         def close(e:ft.ControlEvent) -> None:
             self.page.window.close()
