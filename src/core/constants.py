@@ -47,3 +47,5 @@ class Messages:
     MSG_COPY_PASSWORD         = "Copiar contraseña"
     MSG_NOT_CREDENTIALS_FOUND = "No se encontraron credenciales"
     MSG_FIELD_REQUIRED        = "Este campo es obligatorio"
+    MSG_SHOWING               = "Mostrando"
+    MSG_RECORDS               = "registros"

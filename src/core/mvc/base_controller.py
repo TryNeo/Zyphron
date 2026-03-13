@@ -45,7 +45,7 @@ class FletController:
 
     def search_records(self, e: ft.ControlEvent, datatable: ft.DataTable, 
                        paging_buttons: ft.Row , 
-                       base_page,
+                       base_page: int,
                        generate_row_data_func : callable,
                        get_data_func : callable,
                        get_data_paginate_func : callable,
@@ -119,7 +119,7 @@ class FletController:
             paging_buttons.controls[1].controls[0].controls[1].disabled = self.current_page >= self.total_records_pages - 1
             inicio = self.current_page * page_limit + 1
             fin = min((self.current_page + 1) * page_limit, self.total_records)
-            paging_buttons.controls[0].value = f"Mostrando {inicio}-{fin} de {self.total_records} registros"
+            paging_buttons.controls[0].value = f"{Messages.MSG_SHOWING} {inicio}-{fin} de {self.total_records} {Messages.MSG_RECORDS}"
             return
         else:
             for record in get_data_paginate_func(self.search, offset) or []:
@@ -147,6 +147,6 @@ class FletController:
             paging_buttons.controls[1].controls[0].controls[1].disabled = True
         inicio = self.current_page * page_limit + 1
         fin = min((self.current_page + 1) * page_limit, self.total_records)
-        paging_buttons  .controls[0].value = f"Mostrando {inicio}-{fin} de {self.total_records} registros"
+        paging_buttons  .controls[0].value = f"{Messages.MSG_SHOWING} {inicio}-{fin} de {self.total_records} {Messages.MSG_RECORDS}"
         self.update()
  
