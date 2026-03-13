@@ -75,12 +75,12 @@ class HomeModel(FletModel):
                 title_route,
                 path_route
             FROM routes
-            WHERE project LIKE ? OR title_route LIKE ? OR path_route LIKE ?
+            WHERE project LIKE ? OR title_route LIKE ? 
             ORDER BY project, title_route
             LIMIT ? OFFSET ?
         """
         like_search = f"%{search}%"
-        return await self._execute_query(query, (like_search, like_search,like_search, limit, offset))
+        return await self._execute_query(query, (like_search, like_search, limit, offset))
     
     def get_data_paginate_route(self, search: str, offset: int, limit: int = 7):
         return asyncio.run(self.get_data_paginate_route_async(search, offset, limit))

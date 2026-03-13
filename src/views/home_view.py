@@ -15,6 +15,7 @@ class HomeView(FletView):
             self._build_card(id_cred, title_cred, user, passwd) for id_cred, title_cred, user, passwd in self.model.get_credentials() ] if self.model.get_credentials() else [
             self._build_card(9999, Messages.MSG_NOT_CREDENTIALS_FOUND,"-","-")
         ]
+        self.page_limit = 7
         self.content_user = self._build_content_user()
         self.datatable_custom = self._build_datatable(
             columns=[
@@ -32,7 +33,9 @@ class HomeView(FletView):
                 self.controller.generate_row_data_routes,
                 self.model.get_routes,
                 self.model.get_data_paginate_route,
-                self.model.total_records_route,)
+                self.model.total_records_route,
+                self.page_limit
+                )
         self.content_tabs = self._build_tabs()
         self.view = self._build_view()
         super().__init__(self.model, self.view, self.controller)
@@ -466,17 +469,18 @@ class HomeView(FletView):
                     on_change=lambda e: self.controller.search_records(e,
                                                                     self.datatable_custom,
                                                                     self.paging_buttons,
+                                                                    self.controller.base_page,
                                                                     self.controller.generate_row_data_routes,
                                                                     self.model.get_routes,
                                                                     self.model.get_data_paginate_route,
-                                                                    self.model.total_records_route),
+                                                                    self.model.total_records_route,
+                                                                    self.page_limit),
                 )
 
     def _build_paging_buttons(self) -> ft.Row:
         return  ft.Row(
                     controls=[
                         ft.Text(f"{Messages.MSG_TOTAL_RECORDS} {self.controller.total_records}",size=15,weight=ft.FontWeight.W_300),
-                        #ft.Text(f"{Messages.MSG_RECORDS_PER_PAGE} {self.controller.total_records_pages}",size=15,weight=ft.FontWeight.W_300),
                         ft.Row(
                             controls=[
                                 ft.Row(
@@ -492,7 +496,8 @@ class HomeView(FletView):
                                                                                          self.controller.generate_row_data_routes,
                                                                                          self.model.get_routes,
                                                                                          self.model.get_data_paginate_route,
-                                                                                         self.model.total_records_route),
+                                                                                         self.model.total_records_route,
+                                                                                         self.page_limit),
                                         ),
                                         ft.IconButton(
                                             icon=ft.Icons.KEYBOARD_ARROW_RIGHT,
@@ -504,7 +509,8 @@ class HomeView(FletView):
                                                                                          self.controller.generate_row_data_routes,
                                                                                          self.model.get_routes,
                                                                                          self.model.get_data_paginate_route,
-                                                                                         self.model.total_records_route),
+                                                                                         self.model.total_records_route,
+                                                                                         self.page_limit),
                                         ),
                                     ]
                                 ),

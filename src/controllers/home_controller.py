@@ -146,7 +146,7 @@ class HomeController(FletController):
                 cells=[
                     ft.DataCell(ft.Text(record[1], size=14, font_family="SaansRegular", color="#e2e8f0")),
                     ft.DataCell(ft.Text(record[2], size=14, font_family="SaansRegular", color="#e2e8f0")),
-                    ft.DataCell(ft.Text(f"{self.shorten_url(record[3])}", size=14, font_family="SaansRegular", color="#97c0f5ff" ,style=ft.TextStyle(decoration=ft.TextDecoration.UNDERLINE))),
+                    ft.DataCell(ft.Text(f"{self.shorten_url(record[3], 40)}", size=14, font_family="SaansRegular", color="#97c0f5ff" ,style=ft.TextStyle(decoration=ft.TextDecoration.UNDERLINE))),
                     ft.DataCell(
                         ft.Row(
                             controls=[
