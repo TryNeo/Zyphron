@@ -64,7 +64,9 @@ class MainApplication:
                     radius=15,
                     main_axis_margin=5,
                 )
-            page.theme = theme
+            #page.theme = theme
+            page.bgcolor = ft.Colors.BLACK
+
         configure_title()
         configure_window()
         configure_theme()
@@ -76,6 +78,7 @@ class MainApplication:
         def routes_add() -> list[list]:
             return [
                 path(url="/", clear=True, view=HomeView, model=HomeModel, controller=HomeController),
+                path(url="/enviroments", clear=True, view=EnviromentsView, model=EnviromentsModel, controller=EnviromentsController),
             ]
         
         def page_add(url: str, view: ft.View, model=FletModel, controller=FletController) -> None:

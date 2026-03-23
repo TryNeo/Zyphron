@@ -31,6 +31,24 @@ class HomeController(FletController):
         ]
         self.update()
 
+    def search_notes(self, e : ft.ControlEvent, content_notes_callback, note_callback) -> None:
+        query = e.control.value.strip().lower()
+        content = content_notes_callback
+        notes = note_callback
+        if query == "":
+            content.controls = []
+            content.controls = [
+                notes(i[0], i[1], i[2]) for i in self.model.get_notes()
+            ]
+            self.update()
+            return
+        filtered = self.model.search_notes(query)
+        content.controls = []
+        content.controls = [
+            notes(i[0], i[1], i[2]) for i in filtered
+        ]
+        self.update()
+
     def validate_fields_credential(self, e : ft.ControlEvent) -> None:
         value = e.control.value
         if value.strip() == "":
@@ -81,6 +99,34 @@ class HomeController(FletController):
         self.update()
         self.page.close(modal)
 
+    def add_note(self,e : ft.ControlEvent,*args) -> None:
+        e.control.scale = 0.9
+        e.control.opacity = 0.6
+        threading.Timer(0.15, lambda: (
+            setattr(e.control, 'scale', 1),
+            setattr(e.control, 'opacity', 1),
+            self.update()
+        )).start()
+        modal = list(args)[0][1]
+        title,note = list(args)[0][2].controls
+        content = list(args)[0][3][0]
+        notes = list(args)[0][3][1]
+        if not all([title.data]):
+            return
+        else:
+            if title.value == "":
+                title.error_text = Messages.MSG_FIELD_REQUIRED
+                title.data = False
+                self.update()
+                return
+        self.model.add_note(title.value, note.content.value)
+        content.controls = []
+        content.controls = [
+            notes(i[0], i[1], i[2]) for i in self.model.get_notes()
+        ]
+        self.update()
+        self.page.close(modal)
+
     def edit_credential(self, e : ft.ControlEvent, *args) -> None:
         e.control.scale = 0.9
         e.control.opacity = 0.6
@@ -121,6 +167,29 @@ class HomeController(FletController):
         self.update()
         self.page.close(modal)
 
+    def edit_note(self, e : ft.ControlEvent, *args) -> None:
+        e.control.scale = 0.9
+        e.control.opacity = 0.6
+        threading.Timer(0.15, lambda: (
+            setattr(e.control, 'scale', 1),
+            setattr(e.control, 'opacity', 1),
+            self.update()
+        )).start()
+        modal = list(args)[0][1]
+        title,note = list(args)[0][2].controls
+        id = list(args)[0][3][0]
+        content = list(args)[0][3][1]
+        notes = list(args)[0][3][2]
+        if not all([title.data]):
+            return
+        self.model.edit_note(id,title.value, note.content.value)
+        content.controls = []
+        content.controls = [
+            notes(i[0], i[1], i[2]) for i in self.model.get_notes()
+        ]
+        self.update()
+        self.page.close(modal)
+
     def delete_credential(self, e : ft.ControlEvent, 
                           id_cred: int, 
                           content_user_callback,
@@ -137,6 +206,33 @@ class HomeController(FletController):
         ]
         self.update()
 
+    def delete_note(self, e : ft.ControlEvent,
+                    id_note: int,
+                    content_notes_callback,
+                    note_callback) -> None:
+        content = content_notes_callback
+        notes = note_callback
+        self.model.delete_note(id_note)
+        content.controls = []
+        content.controls = [
+            notes(i[0], i[1], i[2]) for i in self.model.get_notes()
+        ]
+        self.update()
+
+    def copy_url(self, e : ft.ControlEvent, url: str) -> None:
+        self.page.set_clipboard(url)
+        self.page.snack_bar = ft.SnackBar(
+            content=ft.Row([
+                ft.Icon(ft.icons.INFO,color=ft.colors.BLACK),
+                ft.Text("URL copiada al portapapeles", color=ft.colors.BLACK)
+            ]),
+            duration=2000,
+            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+            show_close_icon=True
+        )
+        self.page.open(self.page.snack_bar)
+        self.update()
+
     def generate_row_data_routes(self, 
                         datatable : ft.DataTable ,
                         record : list) -> None:
@@ -145,8 +241,14 @@ class HomeController(FletController):
                 on_select_changed=lambda e : None,
                 cells=[
                     ft.DataCell(ft.Text(record[1], size=14, font_family="SaansRegular", color="#e2e8f0")),
-                    ft.DataCell(ft.Text(record[2], size=14, font_family="SaansRegular", color="#e2e8f0")),
-                    ft.DataCell(ft.Text(f"{self.shorten_url(record[3], 40)}", size=14, font_family="SaansRegular", color="#97c0f5ff" ,style=ft.TextStyle(decoration=ft.TextDecoration.UNDERLINE))),
+                    ft.DataCell(content=ft.Container(
+                        width=140,
+                        content=ft.Text(record[2], size=14, font_family="SaansRegular", color="#e2e8f0"),
+                    )),
+                    ft.DataCell(
+                        ft.Text(f"{self.shorten_url(record[3], 55)}", size=14, font_family="SaansRegular", color="#97c0f5ff" ,style=ft.TextStyle(decoration=ft.TextDecoration.UNDERLINE)),
+                        on_tap=lambda e, url=record[3]: self.page.launch_url(url)
+                    ),
                     ft.DataCell(
                         ft.Row(
                             controls=[
@@ -154,30 +256,23 @@ class HomeController(FletController):
                                     icon=ft.icons.COPY_ALL,
                                     icon_size=18,
                                     icon_color=ft.colors.GREY_400,
-                                    tooltip=Messages.MSG_VIEW,
-                                    #on_click=lambda e: print("Ver función no implementada"),
+                                    tooltip=Messages.MSG_COPY,
+                                    on_click=lambda e, url=record[3]: self.copy_url(e, url)
                                 ),
-                                ft.PopupMenuButton(
-                                        tooltip="Opciones",
-                                        icon_color=ft.colors.GREY_400,
-                                        icon=ft.icons.MORE_VERT,
-                                        items=[
-                                            ft.PopupMenuItem(content=ft.Row(
-                                                controls=[
-                                                    ft.Icon(ft.icons.EDIT_OUTLINED, color=ft.colors.GREY_400),
-                                                    ft.Text(Messages.MSG_EDIT, size=14, font_family="SaansRegular", color="#e2e8f0"),
-                                                ],
-                                            ),),
-                                            ft.PopupMenuItem(
-                                                content=ft.Row(
-                                                    controls=[
-                                                        ft.Icon(ft.icons.DELETE_OUTLINE, color="#ef4444"),
-                                                        ft.Text(Messages.MSG_DELETE, size=14, font_family="SaansRegular", color="#e2e8f0"),
-                                                    ],
-                                                ),
-                                            ),
-                                        ],
-                                )
+                                #ft.IconButton(
+                                #    icon=ft.icons.EDIT,
+                                #    icon_size=18,
+                                #    icon_color=ft.colors.WHITE,
+                                #    tooltip=Messages.MSG_EDIT,
+                                #    #on_click=lambda e: print("Ver función no implementada"),
+                                #),
+                                #ft.IconButton(
+                                #    icon=ft.icons.DELETE_OUTLINE,
+                                #    icon_size=18,
+                                #    icon_color=ft.colors.RED,
+                                #    tooltip=Messages.MSG_DELETE,
+                                #    #on_click=lambda e: print("Ver función no implementada"),
+                                #),
                             ]
                         )
                     ),            

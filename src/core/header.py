@@ -59,7 +59,7 @@ class Header(ft.Container):
             index = e.control.selected_index
             route_map = {
                 0: "/",
-                1: "/prueba",
+                1: "/enviroments",
             }
             if index in route_map:
                 self.page.go(route_map[index])
@@ -75,11 +75,11 @@ class Header(ft.Container):
                         icon_content=ft.Image(src=IconCustom.ICON_HOUSE_DOOR, width=25, height=25,color=ft.Colors.WHITE),
                         selected_icon_content=ft.Image(src=IconCustom.ICON_HOUSE_DOOR, width=25, height=25,color=ft.Colors.WHITE),
                     ),
-                    #ft.NavigationDrawerDestination(
-                    #    label="Prueba",
-                    #    icon_content=ft.Image(src=IconCustom.ICON_HOUSE_DOOR, width=25, height=25,color=ft.Colors.WHITE),
-                    #    selected_icon_content=ft.Image(src=IconCustom.ICON_HOUSE_DOOR, width=25, height=25,color=ft.Colors.WHITE),
-                    #),
+                    ft.NavigationDrawerDestination(
+                        label=Messages.MSG_ENVIRONMENTS,
+                        icon_content=ft.Image(src=IconCustom.ICON_SERVER, width=25, height=25,color=ft.Colors.WHITE),
+                        selected_icon_content=ft.Image(src=IconCustom.ICON_SERVER, width=25, height=25,color=ft.Colors.WHITE),
+                    ),
                 ]
                 drawer = ft.NavigationDrawer(
                     tile_padding=ft.padding.only(left=-1, right=4, top=4),

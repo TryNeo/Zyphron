@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS credentials;
 DROP TABLE IF EXISTS routes;
+DROP TABLE IF EXISTS notes;
 
 CREATE TABLE credentials (
     id_credential INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -14,11 +15,19 @@ CREATE TABLE credentials (
 
 CREATE TABLE routes (
     id_route INTEGER PRIMARY KEY AUTOINCREMENT,
-    project   TEXT NOT NULL,
+    project TEXT NOT NULL,
     title_route  TEXT NOT NULL,
     path_route TEXT NOT NULL,
     is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0,1)),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME,
     deleted_at DATETIME
+);
+
+CREATE TABLE notes (
+    id_note INTEGER PRIMARY KEY AUTOINCREMENT,
+    title_note TEXT NOT NULL,
+    content_note TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME
 );

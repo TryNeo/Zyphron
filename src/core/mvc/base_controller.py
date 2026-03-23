@@ -6,7 +6,7 @@ import ctypes
 
 from requests.compat import urlparse
 
-from core.ui_constants import Messages
+from core.constants import Messages
 from .base_model import FletModel
 
 class FletController:
@@ -42,6 +42,10 @@ class FletController:
                 return base + "/..."
 
             return base + "/" + url[len(base)+1 : len(base)+1+remaining] + "..."
+
+    def shorten_text(self,text: str, max_length: int = 50) -> str:
+        clean = text.replace("\n", " ")
+        return clean if len(clean) <= max_length else clean[:max_length] + "..."
 
     def search_records(self, e: ft.ControlEvent, datatable: ft.DataTable, 
                        paging_buttons: ft.Row , 

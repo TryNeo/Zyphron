@@ -9,6 +9,7 @@ class IconCustom:
     ICON_TOGGLE_DESKTOP    = "/icons/png/toggle_desktop.png"
     ICON_RIGHT_ARROW       = "/icons/png/right-chevron.png"
     ICON_LEFT_ARROW        = "/icons/png/left-chevron.png"
+    ICON_SERVER            = "/icons/png/server.png"
     
 class Messages:
     MSG_CONTINUE              = "Continuar"
@@ -19,6 +20,7 @@ class Messages:
     MSG_NEXT                  = "Siguiente"
     MSG_PREVIOUS              = "Anterior"
     MSG_VIEW                  = "Ver"
+    MSG_COPY                  = "Copiar"
     MSG_INFO                  = "Información"
     MSG_WARNING               = "Cuidado"
     MSG_TOTAL_RECORDS         = "Total de registros: "
@@ -49,3 +51,5 @@ class Messages:
     MSG_FIELD_REQUIRED        = "Este campo es obligatorio"
     MSG_SHOWING               = "Mostrando"
     MSG_RECORDS               = "registros"
+    MSG_ENVIRONMENTS          = "Entornos desarrollo"
+    MSG_NOTES                 = "Notas"
