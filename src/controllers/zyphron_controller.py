@@ -4,7 +4,7 @@ import flet_lottie as fl
 from core.constants import Messages
 from core.mvc import (FletController)
 
-class HomeController(FletController):
+class ZyphronController(FletController):
     def __init__(self, model, page: ft.Page) -> None:
         self.model = model
         self.page = page

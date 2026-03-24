@@ -7,7 +7,7 @@ from core.header import Header
 from core.constants import Messages
 from core.mvc import (FletView,FletModel,FletController)
 
-class HomeView(FletView):
+class ZyphronView(FletView):
     def __init__(self, controller:FletController, model:FletModel,route_url:str):
         self.controller  = controller
         self.model = model
@@ -45,7 +45,7 @@ class HomeView(FletView):
     def _build_header(self) -> ft.AppBar:
         return Header(
                     page=self.controller.page,
-                    title=Messages.MSG_HOME,
+                    title=Messages.MSG_PANEL_CONTROL,
                     screen_id=0,
                 ).build()
 
@@ -551,7 +551,7 @@ class HomeView(FletView):
                     padding=20,
                     content=ft.Column(
                         controls=[
-                            ft.Text("Contenido de Documentos"),
+                            ft.Text("Proximomente se mostrará una lista de documentos con su respectiva información, como el tipo de archivo, tamaño y fecha de creación. Además, se podrán realizar acciones como abrir el documento, eliminarlo o copiar su ruta al portapapeles.", size=14, font_family="SaansRegular", color="#e2e8f0"),
                         ]
                     ),
                 ),
@@ -765,7 +765,6 @@ class HomeView(FletView):
             overlay_color="transparent",
             tabs=[
                 self._build_tab_routes(),
-                self._build_tab_documents(),
                 self._build_tab_notas(),
             ],
             expand=1,

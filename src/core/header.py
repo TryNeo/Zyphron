@@ -1,7 +1,7 @@
 import sys
 import flet as ft
 import pyautogui
-from core.constants import IconCustom,Messages
+from core.constants import IconCustom,Messages,Routes
 
 class Header(ft.Container):
     def __init__(self, page : ft.Page,title: str = "None",screen_id: int = 0) -> None:
@@ -19,6 +19,9 @@ class Header(ft.Container):
                 automatically_imply_leading=True,
                 leading=self._build_default_leading(),
                 actions=[
+                    ft.TextButton(
+                        text="PRUEBA",
+                    ),
                     self._build_button_toggle_desktop(),
                     self._build_button_lock_workstation(),
                     self._build_button_about(),
@@ -47,7 +50,9 @@ class Header(ft.Container):
                     self._build_button_menu(),
                     ft.Text(
                         self.title,
-                        size=20,
+                        size=25,
+                        weight=ft.FontWeight.W_300,
+                        font_family="SaansRegular",
                         color=ft.Colors.WHITE,
                     ),
                 ]
@@ -58,8 +63,7 @@ class Header(ft.Container):
         def change_screen(e: ft.ControlEvent) -> None:
             index = e.control.selected_index
             route_map = {
-                0: "/",
-                1: "/enviroments",
+                0: Routes.ZYPHRON,
             }
             if index in route_map:
                 self.page.go(route_map[index])
@@ -74,11 +78,6 @@ class Header(ft.Container):
                         label=Messages.MSG_START,
                         icon_content=ft.Image(src=IconCustom.ICON_HOUSE_DOOR, width=25, height=25,color=ft.Colors.WHITE),
                         selected_icon_content=ft.Image(src=IconCustom.ICON_HOUSE_DOOR, width=25, height=25,color=ft.Colors.WHITE),
-                    ),
-                    ft.NavigationDrawerDestination(
-                        label=Messages.MSG_ENVIRONMENTS,
-                        icon_content=ft.Image(src=IconCustom.ICON_SERVER, width=25, height=25,color=ft.Colors.WHITE),
-                        selected_icon_content=ft.Image(src=IconCustom.ICON_SERVER, width=25, height=25,color=ft.Colors.WHITE),
                     ),
                 ]
                 drawer = ft.NavigationDrawer(
@@ -98,7 +97,7 @@ class Header(ft.Container):
         return ft.IconButton(
                 content=ft.Image(src=IconCustom.ICON_MENU, width=25, height=25, color=ft.Colors.WHITE),
                 selected=True,
-                on_click=menu,
+                #on_click=menu,
                 tooltip=Messages.MSG_MENU,
            )
     

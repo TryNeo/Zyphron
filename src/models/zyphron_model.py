@@ -1,7 +1,7 @@
 import asyncio
 from core.mvc import (FletModel)
 
-class HomeModel(FletModel):
+class ZyphronModel(FletModel):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 

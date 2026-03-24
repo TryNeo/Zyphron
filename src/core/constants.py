@@ -1,3 +1,6 @@
+class Routes:
+    ZYPHRON          = "/"
+
 class IconCustom:
     ICON_INFO              = "/icons/png/info.png"
     ICON_MENU              = "/icons/png/menu.png"
@@ -51,5 +54,6 @@ class Messages:
     MSG_FIELD_REQUIRED        = "Este campo es obligatorio"
     MSG_SHOWING               = "Mostrando"
     MSG_RECORDS               = "registros"
-    MSG_ENVIRONMENTS          = "Entornos desarrollo"
     MSG_NOTES                 = "Notas"
+    MSG_CONNECTIONS           = "Gestor de conexiones"
+    MSG_PANEL_CONTROL         = "Panel de Control"

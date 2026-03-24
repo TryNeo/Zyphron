@@ -7,6 +7,7 @@ from controllers import *
 from models import *
 from views import *
 from core.mvc import (FletView,FletModel,FletController)
+from core.constants import Routes
 
 try:
     locale.setlocale(locale.LC_TIME, "es_ES.UTF-8")
@@ -77,8 +78,7 @@ class MainApplication:
 
         def routes_add() -> list[list]:
             return [
-                path(url="/", clear=True, view=HomeView, model=HomeModel, controller=HomeController),
-                path(url="/enviroments", clear=True, view=EnviromentsView, model=EnviromentsModel, controller=EnviromentsController),
+                path(url=Routes.ZYPHRON, clear=True, view=ZyphronView, model=ZyphronModel, controller=ZyphronController),
             ]
         
         def page_add(url: str, view: ft.View, model=FletModel, controller=FletController) -> None:
