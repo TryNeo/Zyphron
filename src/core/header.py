@@ -20,7 +20,16 @@ class Header(ft.Container):
                 leading=self._build_default_leading(),
                 actions=[
                     ft.TextButton(
-                        text="PRUEBA",
+                            "Gestor conexiones",
+                            style=ft.ButtonStyle(
+                                side=ft.BorderSide(1, "white"),
+                                shape=ft.RoundedRectangleBorder(radius=12),
+                                color="white"
+                            )
+                    ),
+                    ft.TextButton(
+                        "            ",
+                        disabled=True,
                     ),
                     self._build_button_toggle_desktop(),
                     self._build_button_lock_workstation(),
@@ -104,11 +113,16 @@ class Header(ft.Container):
     def _build_button_toggle_desktop(self) -> ft.IconButton:
         def toggle_desktop(e:ft.ControlEvent) -> None:
             import ctypes
-            shell = ctypes.WinDLL("shell32", use_last_error=True)
-            try:
-                shell.ShellExecuteW(None, "open", "cmd.exe", "/c powershell -NoProfile -Command \"(new-object -com shell.application).ToggleDesktop()\"", None, 0)
-            except Exception as e:
-                raise OSError(f"ToggleDesktop falló: {e}")
+            user32 = ctypes.WinDLL("user32")
+            KEYEVENTF_KEYUP = 0x0002
+            # Win down
+            user32.keybd_event(0x5B, 0, 0, 0)
+            # D down
+            user32.keybd_event(0x44, 0, 0, 0)
+            # D up
+            user32.keybd_event(0x44, 0, KEYEVENTF_KEYUP, 0)
+            # Win up
+            user32.keybd_event(0x5B, 0, KEYEVENTF_KEYUP, 0)
 
         return ft.IconButton(
                 content=ft.Image(src=IconCustom.ICON_TOGGLE_DESKTOP, width=25, height=25, color=ft.Colors.WHITE),

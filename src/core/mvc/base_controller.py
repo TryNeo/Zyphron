@@ -3,6 +3,8 @@ Flet Base Controller Class
 """
 import flet as ft
 import ctypes
+import socket
+import time
 
 from requests.compat import urlparse
 
@@ -46,6 +48,21 @@ class FletController:
     def shorten_text(self,text: str, max_length: int = 50) -> str:
         clean = text.replace("\n", " ")
         return clean if len(clean) <= max_length else clean[:max_length] + "..."
+
+    def mask_password(self, password: str, show_start=1, show_end=1, mask="•••••••••••"):
+        if not password:
+            return ""
+        if len(password) <= show_start + show_end:
+            return mask
+        return f"{password[:show_start]}{mask}"
+
+    def ping_socket(self,host, port=22):
+        start = time.time()
+        try:
+            socket.create_connection((host, port), timeout=1)
+            return round((time.time() - start) * 1000, 2)
+        except:
+            return None
 
     def search_records(self, e: ft.ControlEvent, datatable: ft.DataTable, 
                        paging_buttons: ft.Row , 

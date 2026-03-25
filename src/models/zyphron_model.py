@@ -47,6 +47,30 @@ class ZyphronModel(FletModel):
         like_term = f"%{search_term}%"
         return asyncio.run(self._execute_query(query, (like_term, like_term)))
 
+    def search_connections(self, search_term: str):
+        query = """
+            SELECT
+                c.id_connection,
+                c.name_connection,
+                s.ip_server,
+                s.port_server,
+                c.username_connection,
+                c.passwrd_connection,
+                s.category_server,
+                p.name_project,
+                c.type_connection,
+                c.auto_command
+            FROM connections c
+            INNER JOIN servers s 
+                ON c.id_server = s.id_server
+            INNER JOIN projects p 
+                ON c.id_project = p.id_project
+            WHERE (c.name_connection LIKE ? OR s.category_server LIKE ? OR c.type_connection LIKE ? or p.name_project LIKE ?)
+            ORDER BY c.name_connection;
+        """
+        like_term = f"%{search_term}%"
+        return asyncio.run(self._execute_query(query, (like_term, like_term, like_term, like_term)))
+
     def add_credential(self, title: str, username: str, password: str):
         return asyncio.run(self.insert("credentials", {
             "title_credential": title,
@@ -108,6 +132,31 @@ class ZyphronModel(FletModel):
     
     def get_notes(self):
         return asyncio.run(self.get_notes_async())
+
+    async def get_connections_async(self) -> list:
+        query = """
+            SELECT
+                c.id_connection,
+                c.name_connection,
+                s.ip_server,
+                s.port_server,
+                c.username_connection,
+                c.passwrd_connection,
+                s.category_server,
+                p.name_project,
+                c.type_connection,
+                c.auto_command
+            FROM connections c
+            INNER JOIN servers s 
+                ON c.id_server = s.id_server
+            INNER JOIN projects p 
+                ON c.id_project = p.id_project
+            ORDER BY c.name_connection;
+        """
+        return await self._execute_query(query)
+    
+    def get_connections(self):
+        return asyncio.run(self.get_connections_async())
 
     async def get_data_paginate_route_async(self, search: str, offset: int, limit: int = 7) -> list:
         query = """

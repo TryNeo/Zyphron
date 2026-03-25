@@ -1,6 +1,8 @@
 import threading
+import subprocess
 import flet as ft
 import flet_lottie as fl
+from pathlib import Path
 from core.constants import Messages
 from core.mvc import (FletController)
 
@@ -8,7 +10,39 @@ class ZyphronController(FletController):
     def __init__(self, model, page: ft.Page) -> None:
         self.model = model
         self.page = page
+        self.desktop = Path.home() / "Desktop"
+        self.kitty = self.desktop / "Zyphron" / "tools" / "kitty" 
         super().__init__(model, page)
+
+    def connect_to_server(self, e : ft.ControlEvent, *args) -> None:
+        e.control.scale = 0.9
+        e.control.opacity = 0.6
+        threading.Timer(0.15, lambda: (
+            setattr(e.control, 'scale', 1),
+            setattr(e.control, 'opacity', 1),
+            self.update()
+        )).start()
+        ip = list(args)[0][0]
+        port = list(args)[0][1]
+        user = list(args)[0][2]
+        password = list(args)[0][3]
+        type_connection = list(args)[0][4]
+        modal = list(args)[0][5]
+        auto_command = list(args)[0][6]
+        if type_connection == "SSH":
+            subprocess.Popen([
+                self.kitty / "kitty.exe",
+                "-load", "session-default",f"{user}@{ip}",
+                "-pw", password,
+                "-cmd", auto_command
+            ])
+        else:
+            subprocess.Popen([
+                self.kitty / "ksftp.exe",
+                f"{user}@{ip}",
+                "-pw", password,
+            ],creationflags=subprocess.CREATE_NEW_CONSOLE)
+        self.update()
 
     def search_credentials(self, e : ft.ControlEvent,content_user_callback,
                           card_credentials_callback) -> None:
@@ -28,6 +62,28 @@ class ZyphronController(FletController):
         content.controls = [
             card_credentials(id_cred, title_cred, user, passwd) for id_cred, title_cred, user, passwd in filtered ] if filtered else [
             card_credentials(9999, Messages.MSG_NOT_CREDENTIALS_FOUND, "-", "-")
+        ]
+        self.update()
+
+    def search_connections(self, e : ft.ControlEvent, content_connections_callback, card_connection_callback) -> None:
+        query = e.control.value.strip().lower()
+        content = content_connections_callback.content.content.controls[1]
+        card_connection = card_connection_callback
+        if query == "":
+            content.controls = []
+            content.controls = [
+                card_connection(i[0], i[1], i[2], i[3], i[4], i[5], i[6], 
+                                i[7], i[8],content_connections_callback, i[9]
+                                ) for i in self.model.get_connections()
+            ]
+            self.update()
+            return
+        filtered = self.model.search_connections(query)
+        content.controls = []
+        content.controls = [
+            card_connection(i[0], i[1], i[2], i[3], i[4], i[5], i[6], 
+                            i[7], i[8],content_connections_callback, i[9]
+                            ) for i in filtered
         ]
         self.update()
 
@@ -246,7 +302,7 @@ class ZyphronController(FletController):
                         content=ft.Text(record[2], size=14, font_family="SaansRegular", color="#e2e8f0"),
                     )),
                     ft.DataCell(
-                        ft.Text(f"{self.shorten_url(record[3], 55)}", size=14, font_family="SaansRegular", color="#97c0f5ff" ,style=ft.TextStyle(decoration=ft.TextDecoration.UNDERLINE)),
+                        ft.Text(f"{self.shorten_url(record[3], 55)}", size=14, font_family="SaansRegular", color="#f9f9f9ff" ,style=ft.TextStyle(decoration=ft.TextDecoration.UNDERLINE)),
                         on_tap=lambda e, url=record[3]: self.page.launch_url(url)
                     ),
                     ft.DataCell(

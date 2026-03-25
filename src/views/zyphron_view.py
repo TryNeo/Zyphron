@@ -2,6 +2,7 @@ import datetime
 import random
 import pytz
 import time
+import threading
 import flet as ft
 from core.header import Header
 from core.constants import Messages
@@ -43,11 +44,13 @@ class ZyphronView(FletView):
         super().__init__(self.model, self.view, self.controller)
 
     def _build_header(self) -> ft.AppBar:
-        return Header(
+        appbar= Header(
                     page=self.controller.page,
                     title=Messages.MSG_PANEL_CONTROL,
                     screen_id=0,
                 ).build()
+        appbar.actions[0].on_click = lambda e: self._build_gestions_view(e)
+        return appbar
 
     def _build_view(self) -> ft.View:
         return ft.View(
@@ -769,3 +772,211 @@ class ZyphronView(FletView):
             ],
             expand=1,
     )
+
+    def _build_card_server(self, 
+                        id: int, 
+                        name_connection: str,
+                        ip: str,
+                        port: int, 
+                        user: str,
+                        password: str,
+                        category_server: str,
+                        project: str, 
+                        type_connection: str,
+                        gestions_views : ft.AlertDialog,
+                        auto_command: str = None,
+                        ) -> ft.Container:
+        ping_text = ft.Text("...", size=12,font_family="SaansRegular", color=ft.Colors.WHITE)
+        ping_icon = ft.Icon(ft.Icons.NETWORK_PING, size=16, color=ft.Colors.WHITE)
+        def ping_worker():
+            while True:
+                ping = self.controller.ping_socket(ip)
+                if ping is None:
+                    ping_text.value = "sin conexión"
+                    ping_text.color = ft.Colors.RED
+                else:
+                    ping_text.value = f"{ping} ms"
+                    if ping < 50:
+                        ping_text.color = ft.Colors.GREEN
+                    elif ping < 120:
+                        ping_text.color = ft.Colors.ORANGE
+                    else:
+                        ping_text.color = ft.Colors.RED
+                self.controller.page.update()
+                time.sleep(3)
+        threading.Thread(target=ping_worker, daemon=True).start()
+        container = ft.Container(
+                    animate_scale=ft.animation.Animation(150, "easeOutCubic"),
+                    animate_opacity=ft.animation.Animation(150, "easeOutCubic"),
+                    on_click=lambda e: self.controller.connect_to_server(e,[
+                        ip,
+                        port,
+                        user,
+                        password,
+                        type_connection,
+                        gestions_views,
+                        auto_command
+                    ]),
+                    content=ft.Card(
+                        width=330,
+                        height=170,
+                        elevation=3,
+                        shape=ft.RoundedRectangleBorder(radius=4),
+                        shadow_color=ft.colors.with_opacity(0.5, "black"),
+                        content=ft.Container(
+                            bgcolor=ft.colors.with_opacity(0.1, "#616161"),
+                            padding=15,
+                            content=ft.Column(
+                                spacing=8,
+                                controls=[
+                                    ft.Row(
+                                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                                        controls=[
+                                            ft.Text(f"{name_connection}", size=16, weight=ft.FontWeight.BOLD, font_family="SaansRegular", color=ft.Colors.WHITE),
+                                            ft.Container(
+                                                padding=ft.padding.symmetric(horizontal=8, vertical=3),
+                                                border=ft.border.all(1, ft.Colors.GREY_400),
+                                                border_radius=6,
+                                                content=ft.Text(
+                                                    f"{category_server}",
+                                                    size=10,
+                                                    weight=ft.FontWeight.BOLD,
+                                                    color=ft.Colors.WHITE
+                                                )
+                                            )
+                                        ]
+                                    ),
+                                    ft.Row(
+                                        spacing=10,
+                                        controls=[
+                                            ft.Icon(ft.Icons.DNS, size=16, color=ft.Colors.WHITE),
+                                            ft.Text(f"{ip}:{port}", font_family="SaansRegular", color=ft.Colors.WHITE)
+                                        ]
+                                    ),
+                                    ft.Row(
+                                        spacing=10,
+                                        controls=[
+                                            ft.Icon(ft.Icons.PERSON, size=16, color=ft.Colors.WHITE),
+                                            ft.Text(f"{user}",font_family="SaansRegular", color=ft.Colors.WHITE)
+                                        ]
+                                    ),
+                                    ft.Row(
+                                        spacing=10,
+                                        controls=[
+                                            ft.Icon(ft.Icons.LOCK, size=16, color=ft.Colors.WHITE),
+                                            ft.Text(f"{self.controller.mask_password(password, show_start=0)}", font_family="SaansRegular", color=ft.Colors.WHITE),
+                                        ]
+                                    ),
+                                    ft.Row(
+                                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                                        controls=[
+                                            ft.Row(
+                                                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                                                controls=[
+                                                    ft.Container(
+                                                        padding=ft.padding.symmetric(horizontal=8, vertical=3),
+                                                        border=ft.border.all(1, ft.Colors.GREY_400),
+                                                        border_radius=6,
+                                                        content=ft.Text(f"{project}", size=10,font_family="SaansRegular", color=ft.Colors.WHITE)
+                                                    ),
+                                                    ft.Container(
+                                                        padding=ft.padding.symmetric(horizontal=8, vertical=3),
+                                                        border=ft.border.all(1, ft.Colors.GREY_400),
+                                                        border_radius=6,
+                                                        content=ft.Text(f"{type_connection}", size=10,font_family="SaansRegular", color=ft.Colors.WHITE)
+                                                    ),
+                                                ]
+                                            ),
+                                            ft.Row(
+                                                spacing=5,
+                                                controls=[
+                                                    ping_icon,
+                                                    ping_text,
+                                                ]
+                                            )
+                                        ]
+                                    )
+                                ],
+                            ),
+                        )
+                    )
+                )
+        return container
+
+    def _build_search_gestions(self,label: str = "") -> ft.TextField:
+        return  ft.TextField(
+                    label=label,
+                    suffix_icon=ft.icons.SEARCH,
+                    label_style=ft.TextStyle(size=14,color=ft.Colors.WHITE,font_family="SaansRegular"),
+                    border_radius=ft.BorderRadius(10,10,10,10),
+                    border_color=ft.Colors.WHITE,
+                    max_length=100,
+                    width=400,
+                    show_cursor=True,
+                    #on_change=lambda e: self.controller.search_connections(e,
+                    #                                                       gestion_views,
+                    #                                                       self._build_card_server,
+                    #                                                       ),
+                )
+
+    def _build_gestions_view(self,e : ft.ControlEvent) -> ft.AlertDialog:
+        gestions_views = ft.AlertDialog(
+            barrier_color=ft.colors.with_opacity(0.65, "black"),
+            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+            modal=True,
+            elevation=2,
+            title=ft.Row(
+                controls=[
+                    ft.Text(Messages.MSG_CONNECTIONS, size=23, weight=ft.FontWeight.BOLD),
+                    ft.IconButton(
+                        icon=ft.Icons.CLOSE,
+                        icon_color=ft.Colors.WHITE,
+                        on_click=lambda e: self.controller.page.close(gestions_views)
+                    )
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            ),
+            shape=ft.RoundedRectangleBorder(radius=ft.BorderRadius(13,13,13,13)),
+            content=ft.Container(
+                width=1020,
+                height=600,
+                content=ft.Column(
+                    controls=[
+                        ft.Row(
+                            controls=[
+                                self._build_search_gestions("Buscar por nombre o tipo de conexión"),
+                            ],
+                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                        ),
+                        ft.Row(
+                            expand=True,
+                            scroll=ft.ScrollMode.AUTO,
+                            wrap=True,
+                            controls=[]
+                        )
+                    ]
+                )
+            ),
+        )
+        gestions_views.content.content.controls[1].controls = [
+            self._build_card_server(
+                i[0],  # id_connection
+                i[1],  # name_connection
+                i[2],  # ip_server
+                i[3],  # port_server
+                i[4],  # username_connection
+                i[5],  # passwrd_connection
+                i[6],  # category_server
+                i[7],  # name_project
+                i[8],  # type_connection
+                gestions_views,
+                i[9],  # auto_command
+            )
+            for i in self.model.get_connections()
+        ]
+        gestions_views.content.content.controls[0].controls[0].on_change = lambda e: self.controller.search_connections(e,
+                                                                                                                        gestions_views,
+                                                                                                                        self._build_card_server,
+                                                                                                                        )
+        self.controller.page.open(gestions_views)
+        self.controller.update()
