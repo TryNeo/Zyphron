@@ -1,3 +1,5 @@
+from asyncio import threads
+from concurrent.futures import ThreadPoolExecutor
 import threading
 import subprocess
 import flet as ft
@@ -11,7 +13,8 @@ class ZyphronController(FletController):
         self.model = model
         self.page = page
         self.desktop = Path.home() / "Desktop"
-        self.kitty = self.desktop / "Zyphron" / "tools" / "kitty" 
+        self.kitty = self.desktop / "Zyphron" / "tools" / "kitty"
+        self.thread = ThreadPoolExecutor(max_workers=9999999999999999)
         super().__init__(model, page)
 
     def connect_to_server(self, e : ft.ControlEvent, *args) -> None:
@@ -43,6 +46,7 @@ class ZyphronController(FletController):
                 "-pw", password,
             ],creationflags=subprocess.CREATE_NEW_CONSOLE)
         self.update()
+        self.page.close(modal)
 
     def search_credentials(self, e : ft.ControlEvent,content_user_callback,
                           card_credentials_callback) -> None:

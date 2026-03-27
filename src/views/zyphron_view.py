@@ -786,7 +786,8 @@ class ZyphronView(FletView):
                         gestions_views : ft.AlertDialog,
                         auto_command: str = None,
                         ) -> ft.Container:
-        ping_text = ft.Text("...", size=12,font_family="SaansRegular", color=ft.Colors.WHITE)
+        ping_text = ft.Text("...", size=12,font_family="SaansRegular", color=ft.Colors.WHITE,
+                            weight=ft.FontWeight.BOLD,data=id)
         ping_icon = ft.Icon(ft.Icons.NETWORK_PING, size=16, color=ft.Colors.WHITE)
         def ping_worker():
             while True:
@@ -804,7 +805,7 @@ class ZyphronView(FletView):
                         ping_text.color = ft.Colors.RED
                 self.controller.page.update()
                 time.sleep(3)
-        threading.Thread(target=ping_worker, daemon=True).start()
+        self.controller.thread.submit(ping_worker)
         container = ft.Container(
                     animate_scale=ft.animation.Animation(150, "easeOutCubic"),
                     animate_opacity=ft.animation.Animation(150, "easeOutCubic"),
@@ -913,10 +914,6 @@ class ZyphronView(FletView):
                     max_length=100,
                     width=400,
                     show_cursor=True,
-                    #on_change=lambda e: self.controller.search_connections(e,
-                    #                                                       gestion_views,
-                    #                                                       self._build_card_server,
-                    #                                                       ),
                 )
 
     def _build_gestions_view(self,e : ft.ControlEvent) -> ft.AlertDialog:
